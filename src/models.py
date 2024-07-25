@@ -17,20 +17,7 @@ class User(Base):
     apellido = Column(String(100))
     fecha_creacion = Column(DateTime, nullable=False)
     
-    favoritos_planetas = relationship('FavoritePlanet', backref='user')
-    favoritos_personajes = relationship('FavoriteCharacter', backref='user')
-    favoritos_vehiculos = relationship('FavoriteVehicle', backref='user')
-    
-    seguidores = relationship(
-        'Follow', 
-        foreign_keys='Follow.followed_id',
-        backref='followee'
-    )
-    seguidos = relationship(
-        'Follow', 
-        foreign_keys='Follow.follower_id',
-        backref='follower'
-    )
+    favoritos = relationship('Favorite', backref='user')
 
 class Planet(Base):
     __tablename__ = 'planet'
@@ -43,7 +30,7 @@ class Planet(Base):
     periodo_orbital = Column(Integer)
     periodo_rotacion = Column(Integer)
 
-    favoritos = relationship('FavoritePlanet', backref='planet')
+    favoritos = relationship('Favorite', foreign_keys='Favorite.planet_id', backref='planet')
 
 class Character(Base):
     __tablename__ = 'character'
@@ -54,7 +41,7 @@ class Character(Base):
     genero = Column(String(20))
     especie = Column(String(100))
 
-    favoritos = relationship('FavoriteCharacter', backref='character')
+    favoritos = relationship('Favorite', foreign_keys='Favorite.character_id', backref='character')
 
 class Vehicle(Base):
     __tablename__ = 'vehicle'
@@ -65,31 +52,15 @@ class Vehicle(Base):
     pasajeros = Column(Integer)
     capacidad_carga = Column(String(50))
 
-    favoritos = relationship('FavoriteVehicle', backref='vehicle')
+    favoritos = relationship('Favorite', foreign_keys='Favorite.vehicle_id', backref='vehicle')
 
-class FavoritePlanet(Base):
-    __tablename__ = 'favorite_planet'
+class Favorite(Base):
+    __tablename__ = 'favorite'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-    planet_id = Column(Integer, ForeignKey('planet.id'), nullable=False)
-
-class FavoriteCharacter(Base):
-    __tablename__ = 'favorite_character'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-    character_id = Column(Integer, ForeignKey('character.id'), nullable=False)
-
-class FavoriteVehicle(Base):
-    __tablename__ = 'favorite_vehicle'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-    vehicle_id = Column(Integer, ForeignKey('vehicle.id'), nullable=False)
-
-class Follow(Base):
-    __tablename__ = 'follow'
-    id = Column(Integer, primary_key=True)
-    follower_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-    followed_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    planet_id = Column(Integer, ForeignKey('planet.id'))
+    character_id = Column(Integer, ForeignKey('character.id'))
+    vehicle_id = Column(Integer, ForeignKey('vehicle.id'))
 
     def to_dict(self):
         return {}
